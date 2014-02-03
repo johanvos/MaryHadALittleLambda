@@ -71,24 +71,25 @@ public class Main extends Application {
         // Gratuitous use of lambdas to do nested iteration!
 //        for (int i = 0; i < HORIZONTAL_CELLS; i++) {
 //            for (int j = 0; j < VERTICAL_CELLS; j++) {
-        Group cells = new Group(IntStream.range(0, HORIZONTAL_CELLS).mapToObj(i ->
-            IntStream.range(0, VERTICAL_CELLS).mapToObj(j -> {
-                Rectangle rect = new Rectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        Group cells = new Group();
+        for (int i = 0; i < HORIZONTAL_CELLS; i++) {
+            for (int j = 0; j < VERTICAL_CELLS; j++) {
+                 Rectangle rect = new Rectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 rect.setFill(Color.rgb(0, 0, 0, 0));
                 rect.setStrokeType(StrokeType.INSIDE);
                 rect.setStroke(Color.BLACK);
-// This is too slow on mobile devices
-//                rect.getStrokeDashArray().setAll(0.7 * CELL_SIZE / 4, 0.3 * CELL_SIZE / 4);
-//                rect.setStrokeDashOffset(0.35 * CELL_SIZE / 4);
-                rect.setOnMousePressed(new EventHandler<MouseEvent>() {
+                final int x = i;
+                final int y = j;
+                 rect.setOnMousePressed(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        mary.moveTo(new Location(i, j));
+                        mary.moveTo(new Location(x,y));
                     }
                 });
-                return rect;
-            })
-        ).flatMap(s -> s).toArray(Rectangle[]::new));
+                 cells.getChildren().add(rect);
+            }
+        }
+
         root.getChildren().addAll(cells);
     }
 
