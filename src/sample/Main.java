@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 
 public class Main extends Application {
 
-    static final int SCALE = 4;
+    static final int SCALE = 3;
     static final int SPRITE_SIZE = 32;
     static final int CELL_SIZE = SPRITE_SIZE * SCALE;
     static final int HORIZONTAL_CELLS = 10;
