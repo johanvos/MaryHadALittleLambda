@@ -18,9 +18,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BlurType;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -29,8 +27,8 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 import javafx.beans.value.ObservableValue;
 
 public class SpriteView extends StackPane {
@@ -186,12 +184,25 @@ public class SpriteView extends StackPane {
             super(EGGS, following);
         }
 
-        public static Stream<SpriteView> hatch(SpriteView sv) {
+        public static List<SpriteView> hatch(SpriteView sv) {
+            LinkedList<SpriteView> answer = new LinkedList<>();
             if (!(sv instanceof Eggs)) {
-                return Stream.of(sv);
+                answer.add(sv);
+                
             }
-            return Stream.iterate(sv, Chicken::new).skip(1).limit(3);
+            else {
+                for (int i = 0; i < 3; i++) {
+                    answer.add(new Chicken(sv));
+                }
+            }
+            return answer;
         }
+//        public static Stream<SpriteView> hatch(SpriteView sv) {
+//            if (!(sv instanceof Eggs)) {
+//                return Stream.of(sv);
+//            }
+//            return Stream.iterate(sv, Chicken::new).skip(1).limit(3);
+//        }
     }
 
     public static class NumberedSpriteView extends SpriteView {
@@ -252,7 +263,6 @@ public class SpriteView extends StackPane {
             }
         };
 
-//                (ov, o, o2) -> imageView.setViewport(new Rectangle2D(frame.get() * spriteWidth, direction.get().getOffset() * spriteHeight, spriteWidth, spriteHeight));
         direction.addListener(updateImage);
         frame.addListener(updateImage);
         spriteWidth = (int) (spriteSheet.getWidth() / 3);
