@@ -197,12 +197,6 @@ public class SpriteView extends StackPane {
             }
             return answer;
         }
-//        public static Stream<SpriteView> hatch(SpriteView sv) {
-//            if (!(sv instanceof Eggs)) {
-//                return Stream.of(sv);
-//            }
-//            return Stream.iterate(sv, Chicken::new).skip(1).limit(3);
-//        }
     }
 
     public static class NumberedSpriteView extends SpriteView {
