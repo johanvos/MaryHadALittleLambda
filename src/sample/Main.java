@@ -67,54 +67,55 @@ public class Main extends Application {
         root.getChildren().add(background);
 
     }
+
     private void populateCells(Group root, final SpriteView.Mary mary) {
-        // Gratuitous use of lambdas to do nested iteration!
-//        for (int i = 0; i < HORIZONTAL_CELLS; i++) {
-//            for (int j = 0; j < VERTICAL_CELLS; j++) {
         Group cells = new Group();
         for (int i = 0; i < HORIZONTAL_CELLS; i++) {
             for (int j = 0; j < VERTICAL_CELLS; j++) {
-                 Rectangle rect = new Rectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                Rectangle rect = new Rectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 rect.setFill(Color.rgb(0, 0, 0, 0));
                 rect.setStrokeType(StrokeType.INSIDE);
                 rect.setStroke(Color.BLACK);
                 final int x = i;
                 final int y = j;
-                 rect.setOnMousePressed(new EventHandler<MouseEvent>() {
+                rect.setOnMousePressed(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
-                        mary.moveTo(new Location(x,y));
+                        mary.moveTo(new Location(x, y));
                     }
                 });
-                 cells.getChildren().add(rect);
+                cells.getChildren().add(rect);
             }
         }
-
         root.getChildren().addAll(cells);
     }
 
-    private void addKeyHandler(Scene scene, SpriteView mary) {
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, ke -> {
-            KeyCode keyCode = ke.getCode();
-            switch (keyCode) {
-                case W:
-                case UP:
-                    mary.move(Direction.UP);
-                    break;
-                case A:
-                case LEFT:
-                    mary.move(Direction.LEFT);
-                    break;
-                case S:
-                case DOWN:
-                    mary.move(Direction.DOWN);
-                    break;
-                case D:
-                case RIGHT:
-                    mary.move(Direction.RIGHT);
-                    break;
-                case ESCAPE:
-                    Platform.exit();
+    private void addKeyHandler(Scene scene, final SpriteView mary) {
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+
+            @Override
+            public void handle(KeyEvent ke) {
+                KeyCode keyCode = ke.getCode();
+                switch (keyCode) {
+                    case W:
+                    case UP:
+                        mary.move(Direction.UP);
+                        break;
+                    case A:
+                    case LEFT:
+                        mary.move(Direction.LEFT);
+                        break;
+                    case S:
+                    case DOWN:
+                        mary.move(Direction.DOWN);
+                        break;
+                    case D:
+                    case RIGHT:
+                        mary.move(Direction.RIGHT);
+                        break;
+                    case ESCAPE:
+                        Platform.exit();
+                }
             }
         });
     }
@@ -124,14 +125,18 @@ public class Main extends Application {
     }
 
     public static enum Direction {
+
         DOWN(0), LEFT(1), RIGHT(2), UP(3);
         private final int offset;
+
         Direction(int offset) {
             this.offset = offset;
         }
+
         public int getOffset() {
             return offset;
         }
+
         public int getXOffset() {
             switch (this) {
                 case LEFT:
@@ -142,6 +147,7 @@ public class Main extends Application {
                     return 0;
             }
         }
+
         public int getYOffset() {
             switch (this) {
                 case UP:
@@ -155,21 +161,27 @@ public class Main extends Application {
     }
 
     public static class Location {
+
         int cell_x;
         int cell_y;
+
         public Location(int cell_x, int cell_y) {
             this.cell_x = cell_x;
             this.cell_y = cell_y;
         }
+
         public int getX() {
             return cell_x;
         }
+
         public int getY() {
             return cell_y;
         }
+
         public Location offset(int x, int y) {
             return new Location(cell_x + x, cell_y + y);
         }
+
         public Direction directionTo(Location loc) {
             if (Math.abs(loc.cell_x - cell_x) > Math.abs(loc.cell_y - cell_y)) {
                 return (loc.cell_x > cell_x) ? Direction.RIGHT : Direction.LEFT;

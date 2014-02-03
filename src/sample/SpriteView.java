@@ -31,82 +31,108 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import javafx.beans.value.ObservableValue;
 
 public class SpriteView extends StackPane {
+
     private final ImageView imageView;
     private Color color;
     EventHandler<ActionEvent> arrivalHandler;
     double colorOffset;
+
     public void setDirection(Main.Direction direction) {
         this.direction.setValue(direction);
     }
 
     public static class Mary extends Shepherd {
+
         // Image by Terra-chan: http://www.rpgmakervx.net/index.php?showtopic=29404
         static final Image MARY = loadImage("images/mary.png");
+
         public Mary(Main.Location loc) {
             super(MARY, loc);
         }
     }
 
     public static class Shepherd extends SpriteView {
+
         private ObservableList<SpriteView> animals;
+
         public ObservableList<SpriteView> getAnimals() {
             return animals;
         }
+
         public Shepherd(Image spriteSheet, Main.Location loc) {
             super(spriteSheet, loc);
             animals = FXCollections.observableArrayList();
-            animals.addListener((ListChangeListener) c -> {
-                ObservableList<Node> children = ((Group) getParent()).getChildren();
-                while (c.next()) {
-                    if (c.wasAdded() || c.wasRemoved() || c.wasReplaced()) {
-                        children.removeAll(c.getRemoved());
-                        children.addAll(c.getAddedSubList());
-                        SpriteView prev = this;
-                        int number = 0;
-                        for (SpriteView a : animals) {
-                            a.following = prev;
-                            a.number.set(++number);
-                            prev.followers.clear();
-                            prev.followers.add(a);
-                            prev = a;
+            animals.addListener(new ListChangeListener<SpriteView>() {
+
+                @Override
+                public void onChanged(ListChangeListener.Change<? extends SpriteView> c) {
+                    ObservableList<Node> children = ((Group) getParent()).getChildren();
+                    while (c.next()) {
+                        if (c.wasAdded() || c.wasRemoved() || c.wasReplaced()) {
+                            children.removeAll(c.getRemoved());
+                            children.addAll(c.getAddedSubList());
+                            SpriteView prev = Shepherd.this;
+                            int number = 0;
+                            for (SpriteView a : animals) {
+                                a.following = prev;
+                                a.number.set(++number);
+                                prev.followers.clear();
+                                prev.followers.add(a);
+                                prev = a;
+                            }
                         }
                     }
+
                 }
-            });
-            arrivalHandler = e -> {
-                MapObject object = Main.map[location.get().getX()][location.get().getY()];
-                if (object != null) {
-                    object.visit(this);
+            }
+            );
+            arrivalHandler = new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent e) {
+                    MapObject object = Main.map[location.get().getX()][location.get().getY()];
+                    if (object != null) {
+                        object.visit(Shepherd.this);
+                    }
                 }
             };
+
         }
     }
 
     public static class Lamb extends NumberedSpriteView {
+
         // Image by Mack: http://www.rpgmakervx.net/index.php?showtopic=15704
         static final Image LAMB = loadImage("images/lamb.png");
-        private ChangeListener<Main.Direction> directionListener = (ov, o, o2) -> {
-            switch (o2) {
-                case RIGHT:
-                    label.setTranslateX(-4 * Main.SCALE);
-                    label.setTranslateY(2 * Main.SCALE);
-                    break;
-                case LEFT:
-                    label.setTranslateX(4 * Main.SCALE);
-                    label.setTranslateY(2 * Main.SCALE);
-                    break;
-                case UP:
-                    label.setTranslateX(0);
-                    label.setTranslateY(-2 * Main.SCALE);
-                    break;
-                case DOWN:
-                    label.setTranslateX(0);
-                    label.setTranslateY(-9 * Main.SCALE);
-                    break;
-            }
-        };
+        private ChangeListener<Main.Direction> directionListener
+                = new ChangeListener<Main.Direction>() {
+
+                    @Override
+                    public void changed(ObservableValue<? extends Main.Direction> ov, Main.Direction o, Main.Direction o2) {
+                        switch (o2) {
+                            case RIGHT:
+                                label.setTranslateX(-4 * Main.SCALE);
+                                label.setTranslateY(2 * Main.SCALE);
+                                break;
+                            case LEFT:
+                                label.setTranslateX(4 * Main.SCALE);
+                                label.setTranslateY(2 * Main.SCALE);
+                                break;
+                            case UP:
+                                label.setTranslateX(0);
+                                label.setTranslateY(-2 * Main.SCALE);
+                                break;
+                            case DOWN:
+                                label.setTranslateX(0);
+                                label.setTranslateY(-9 * Main.SCALE);
+                                break;
+                        }
+                    }
+                };
+        
         public Lamb(SpriteView following) {
             super(LAMB, following);
             direction.addListener(directionListener);
@@ -115,28 +141,35 @@ public class SpriteView extends StackPane {
     }
 
     public static class Chicken extends NumberedSpriteView {
+
         // Image by LovelyBlue: http://l0velyblue.deviantart.com/art/Chicken-203764427
         static final Image CHICKEN = loadImage("images/chicken.png");
-        private ChangeListener<Main.Direction> directionListener = (ov, o, o2) -> {
-            switch (o2) {
-                case RIGHT:
-                    label.setTranslateX(0);
-                    label.setTranslateY(4 * Main.SCALE);
-                    break;
-                case LEFT:
-                    label.setTranslateX(0);
-                    label.setTranslateY(4 * Main.SCALE);
-                    break;
-                case UP:
-                    label.setTranslateX(0);
-                    label.setTranslateY(2 * Main.SCALE);
-                    break;
-                case DOWN:
-                    label.setTranslateX(0);
-                    label.setTranslateY(9 * Main.SCALE);
-                    break;
-            }
-        };
+        private ChangeListener<Main.Direction> directionListener
+                = new ChangeListener<Main.Direction>() {
+
+                    @Override
+                    public void changed(ObservableValue<? extends Main.Direction> ov, Main.Direction o, Main.Direction o2) {
+                        switch (o2) {
+                            case RIGHT:
+                                label.setTranslateX(0);
+                                label.setTranslateY(4 * Main.SCALE);
+                                break;
+                            case LEFT:
+                                label.setTranslateX(0);
+                                label.setTranslateY(4 * Main.SCALE);
+                                break;
+                            case UP:
+                                label.setTranslateX(0);
+                                label.setTranslateY(2 * Main.SCALE);
+                                break;
+                            case DOWN:
+                                label.setTranslateX(0);
+                                label.setTranslateY(9 * Main.SCALE);
+                                break;
+                        }
+                    }
+                };
+
         public Chicken(SpriteView following) {
             super(CHICKEN, following);
             colorOffset = 1;
@@ -146,10 +179,13 @@ public class SpriteView extends StackPane {
     }
 
     public static class Eggs extends NumberedSpriteView {
+
         static final Image EGGS = loadImage("images/eggs.png");
+
         public Eggs(SpriteView following) {
             super(EGGS, following);
         }
+
         public static Stream<SpriteView> hatch(SpriteView sv) {
             if (!(sv instanceof Eggs)) {
                 return Stream.of(sv);
@@ -159,7 +195,9 @@ public class SpriteView extends StackPane {
     }
 
     public static class NumberedSpriteView extends SpriteView {
+
         protected final Label label;
+
         public NumberedSpriteView(Image spriteSheet, SpriteView following) {
             super(spriteSheet, following);
             label = new Label();
@@ -171,9 +209,11 @@ public class SpriteView extends StackPane {
 
     private SpriteView following;
     IntegerProperty number = new SimpleIntegerProperty();
+
     public int getNumber() {
         return number.get();
     }
+
     public SpriteView(Image spriteSheet, SpriteView following) {
         this(spriteSheet, following.getLocation().offset(-following.getDirection().getXOffset(), -following.getDirection().getYOffset()));
         number.set(following.number.get() + 1);
@@ -182,6 +222,7 @@ public class SpriteView extends StackPane {
         following.followers.add(this);
         setMouseTransparent(true);
     }
+
     public SpriteView getFollowing() {
         return following;
     }
@@ -197,12 +238,21 @@ public class SpriteView extends StackPane {
     static Image loadImage(String url) {
         return new Image(SpriteView.class.getResource(url).toString(), Main.SPRITE_SIZE * 3 * Main.SCALE, Main.SPRITE_SIZE * 4 * Main.SCALE, true, false);
     }
+
     public SpriteView(Image spriteSheet, Main.Location loc) {
         imageView = new ImageView(spriteSheet);
         this.location.set(loc);
         setTranslateX(loc.getX() * Main.CELL_SIZE);
         setTranslateY(loc.getY() * Main.CELL_SIZE);
-        ChangeListener<Object> updateImage = (ov, o, o2) -> imageView.setViewport(new Rectangle2D(frame.get() * spriteWidth, direction.get().getOffset() * spriteHeight, spriteWidth, spriteHeight));
+        ChangeListener<Object> updateImage = new ChangeListener() {
+
+            @Override
+            public void changed(ObservableValue ov, Object t, Object t1) {
+                imageView.setViewport(new Rectangle2D(frame.get() * spriteWidth, direction.get().getOffset() * spriteHeight, spriteWidth, spriteHeight));
+            }
+        };
+
+//                (ov, o, o2) -> imageView.setViewport(new Rectangle2D(frame.get() * spriteWidth, direction.get().getOffset() * spriteHeight, spriteWidth, spriteHeight));
         direction.addListener(updateImage);
         frame.addListener(updateImage);
         spriteWidth = (int) (spriteSheet.getWidth() / 3);
@@ -210,43 +260,62 @@ public class SpriteView extends StackPane {
         direction.set(Main.Direction.RIGHT);
         getChildren().add(imageView);
     }
+
     public void startAnimation() {
-        Timeline timeline = new Timeline(Animation.INDEFINITE,
-            new KeyFrame(Duration.seconds(.25), new KeyValue(frame, 0)),
-            new KeyFrame(Duration.seconds(.5), new KeyValue(frame, 1)),
-            new KeyFrame(Duration.seconds(.75), new KeyValue(frame, 2)),
-            new KeyFrame(Duration.seconds(1), new KeyValue(frame, 1))
+        final Timeline timeline = new Timeline(Animation.INDEFINITE,
+                new KeyFrame(Duration.seconds(.25), new KeyValue(frame, 0)),
+                new KeyFrame(Duration.seconds(.5), new KeyValue(frame, 1)),
+                new KeyFrame(Duration.seconds(.75), new KeyValue(frame, 2)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(frame, 1))
         );
-        timeline.onFinishedProperty().setValue(e -> timeline.play());
+        timeline.onFinishedProperty().setValue(
+                new EventHandler<ActionEvent>() {
+
+                    @Override
+                    public void handle(ActionEvent t) {
+                        timeline.play();
+                    }
+                }
+        );
+
+        //        e -> timeline.play());
         timeline.play();
     }
+
     public void move(Main.Direction direction) {
-        if (walking != null && walking.getStatus().equals(Animation.Status.RUNNING))
+        if (walking != null && walking.getStatus().equals(Animation.Status.RUNNING)) {
             return;
+        }
         this.direction.set(direction);
         moveTo(location.getValue().offset(direction.getXOffset(), direction.getYOffset()));
     }
+
     public void moveTo(Main.Location loc) {
-        followers.forEach(f -> f.moveTo(location.getValue()));
+        for (SpriteView f : followers) {
+            f.moveTo(location.getValue());
+        }
         direction.set(location.getValue().directionTo(loc));
         location.setValue(loc);
         walking = new Timeline(Animation.INDEFINITE,
-            new KeyFrame(Duration.seconds(1), new KeyValue(translateXProperty(), loc.getX() * Main.CELL_SIZE)),
-            new KeyFrame(Duration.seconds(1), new KeyValue(translateYProperty(), loc.getY() * Main.CELL_SIZE)),
-            new KeyFrame(Duration.seconds(.25), new KeyValue(frame, 0)),
-            new KeyFrame(Duration.seconds(.5), new KeyValue(frame, 1)),
-            new KeyFrame(Duration.seconds(.75), new KeyValue(frame, 2)),
-            new KeyFrame(Duration.seconds(1), new KeyValue(frame, 1))
+                new KeyFrame(Duration.seconds(1), new KeyValue(translateXProperty(), loc.getX() * Main.CELL_SIZE)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(translateYProperty(), loc.getY() * Main.CELL_SIZE)),
+                new KeyFrame(Duration.seconds(.25), new KeyValue(frame, 0)),
+                new KeyFrame(Duration.seconds(.5), new KeyValue(frame, 1)),
+                new KeyFrame(Duration.seconds(.75), new KeyValue(frame, 2)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(frame, 1))
         );
         walking.setOnFinished(arrivalHandler);
         walking.play();
     }
+
     public Main.Location getLocation() {
         return location.get();
     }
+
     public Main.Direction getDirection() {
         return direction.get();
     }
+
     public void setColor(Color color) {
         this.color = color;
         if (color == null) {
@@ -255,6 +324,7 @@ public class SpriteView extends StackPane {
             imageView.setEffect(new ColorAdjust(color.getHue() / 180 - colorOffset, 0.3, 0, 0));
         }
     }
+
     public Color getColor() {
         return color;
     }
